@@ -1,5 +1,31 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { touchInput } from '../state/gameStore'
+
+// Fullscreen toggle — mainly for mobile landscape, where the browser chrome
+// (URL bar) eats a big slice of an already short screen. Hidden when the
+// Fullscreen API isn't available (e.g. iPhone Safari).
+function FullscreenButton() {
+  const [active, setActive] = useState(false)
+  const supported = typeof document !== 'undefined' && !!document.documentElement.requestFullscreen
+
+  useEffect(() => {
+    if (!supported) return
+    const onChange = () => setActive(!!document.fullscreenElement)
+    document.addEventListener('fullscreenchange', onChange)
+    return () => document.removeEventListener('fullscreenchange', onChange)
+  }, [supported])
+
+  if (!supported) return null
+  const toggle = () => {
+    if (document.fullscreenElement) void document.exitFullscreen()
+    else void document.documentElement.requestFullscreen().catch(() => {})
+  }
+  return (
+    <button type="button" className="touch-btn touch-btn--fullscreen" aria-label="Fullscreen" onClick={toggle}>
+      {active ? '✕' : '⛶'}
+    </button>
+  )
+}
 
 type Flag = keyof typeof touchInput
 
@@ -46,6 +72,7 @@ export function TouchControls() {
 
   return (
     <>
+      <FullscreenButton />
       <div className="touch-cluster touch-cluster--left">
         <HoldButton flag="left" label="Steer left">
           ◀

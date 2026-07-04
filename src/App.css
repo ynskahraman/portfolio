@@ -16,7 +16,10 @@
 .app {
   position: relative;
   width: 100vw;
+  /* dvh tracks the *visible* viewport on mobile (URL bar shown/hidden);
+     plain vh leaves bottom-anchored UI below the fold */
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   background: radial-gradient(circle at 50% -10%, #1b2a4a, #0b1220 60%);
   font-family: 'Nunito', 'Segoe UI', system-ui, sans-serif;
@@ -721,7 +724,7 @@ kbd {
 /* ---------- Touch controls ---------- */
 .touch-cluster {
   position: absolute;
-  bottom: 1.2rem;
+  bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
   display: flex;
   gap: 0.7rem;
   align-items: flex-end;
@@ -729,11 +732,11 @@ kbd {
 }
 
 .touch-cluster--left {
-  left: 1rem;
+  left: calc(0.9rem + env(safe-area-inset-left, 0px));
 }
 
 .touch-cluster--right {
-  right: 1rem;
+  right: calc(0.9rem + env(safe-area-inset-right, 0px));
 }
 
 .touch-btn {
@@ -770,6 +773,23 @@ kbd {
   background: rgba(14, 165, 233, 0.35);
 }
 
+/* small fullscreen toggle, tucked under the header on the left */
+.touch-btn--fullscreen {
+  position: absolute;
+  top: 3.9rem;
+  left: calc(0.6rem + env(safe-area-inset-left, 0px));
+  width: 44px;
+  height: 44px;
+  font-size: 1.05rem;
+  z-index: 6;
+}
+
+@media (pointer: coarse) and (max-height: 520px) {
+  .touch-btn--fullscreen {
+    top: 2.9rem;
+  }
+}
+
 .toast {
   position: absolute;
   left: 50%;
@@ -785,64 +805,232 @@ kbd {
   animation: rise 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* ---------- Mobile · portrait ---------- */
 @media (max-width: 720px) {
+  /* compact one-line header so the play area stays big */
   .brand {
-    flex-direction: column;
-    align-items: stretch;
-    padding: 1.1rem 1.1rem;
+    padding: 0.7rem 0.9rem;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
   }
 
-  .welcome-card,
+  .eyebrow,
+  .subtitle {
+    display: none;
+  }
+
+  .brand h1 {
+    font-size: 1.05rem;
+  }
+
+  .brand-actions {
+    gap: 0.4rem;
+  }
+
+  .chip-btn {
+    padding: 0.45rem 0.7rem;
+    font-size: 0.72rem;
+  }
+
+  .lang-switch button {
+    padding: 0.3rem 0.55rem;
+    font-size: 0.72rem;
+  }
+
+  /* welcome becomes a centered modal — it never fights the bottom stack */
+  .welcome-card {
+    left: 1rem;
+    right: 1rem;
+    top: 50%;
+    bottom: auto;
+    width: auto;
+    transform: translateY(-50%);
+    animation: none;
+    padding: 1.1rem 1.2rem;
+  }
+
+  .welcome-card p {
+    font-size: 0.88rem;
+  }
+
+  /* info cards float above the touch controls and scroll if long */
   .context-card {
     left: 1rem;
     right: 1rem;
-    bottom: 1rem;
+    bottom: calc(9.6rem + env(safe-area-inset-bottom, 0px));
     width: auto;
+    max-height: 38dvh;
+    overflow-y: auto;
+    padding: 0.9rem 1rem;
+    font-size: 0.9rem;
   }
 
   .controls-panel {
     right: 1rem;
     left: 1rem;
     top: auto;
-    bottom: 6.5rem;
+    bottom: calc(9.6rem + env(safe-area-inset-bottom, 0px));
   }
 
   .control-hint {
     display: none;
   }
 
-  /* keep the bottom corners free for the touch controls */
-  .minimap {
-    left: auto;
-    right: 0.6rem;
-    top: 11rem;
-    bottom: auto;
-    transform: scale(0.72);
-    transform-origin: top right;
-  }
-
+  /* bottom stack: clusters in the corners, nitro pill just above them */
   .nitro {
-    bottom: 8.6rem;
+    bottom: calc(6.9rem + env(safe-area-inset-bottom, 0px));
+    padding: 0.45rem 0.75rem;
   }
 
+  .nitro__bar {
+    width: 84px;
+  }
+
+  /* timers live at the top, under the header */
   .laps {
-    top: auto;
-    bottom: 12.4rem;
-    font-size: 0.78rem;
+    top: 3.9rem;
+    bottom: auto;
+    font-size: 0.76rem;
+    padding: 0.4rem 0.8rem;
   }
 
   .race-pill {
-    top: auto;
-    bottom: 12.4rem;
+    top: 6.4rem;
+    bottom: auto;
+    font-size: 0.85rem;
   }
 
-  .welcome-card,
-  .context-card {
-    bottom: 12.2rem;
+  .minimap {
+    left: auto;
+    right: 0.5rem;
+    top: 3.9rem;
+    bottom: auto;
+    transform: scale(0.62);
+    transform-origin: top right;
   }
 
   .toast {
     width: calc(100% - 2rem);
     text-align: center;
+  }
+}
+
+/* ---------- Mobile · landscape (short touch screens) ---------- */
+@media (pointer: coarse) and (max-height: 520px) {
+  .brand {
+    padding: 0.45rem 0.8rem;
+    align-items: center;
+  }
+
+  .eyebrow,
+  .subtitle {
+    display: none;
+  }
+
+  .brand h1 {
+    font-size: 0.95rem;
+  }
+
+  .chip-btn {
+    padding: 0.4rem 0.65rem;
+    font-size: 0.7rem;
+  }
+
+  .lang-switch button {
+    padding: 0.28rem 0.5rem;
+    font-size: 0.7rem;
+  }
+
+  .welcome-card {
+    left: 50%;
+    right: auto;
+    top: 50%;
+    bottom: auto;
+    width: min(88vw, 440px);
+    transform: translate(-50%, -50%);
+    animation: none;
+    padding: 0.9rem 1.1rem;
+  }
+
+  .welcome-card p {
+    font-size: 0.82rem;
+    margin-bottom: 0.6rem;
+  }
+
+  /* side panel on the left; minimap keeps the right */
+  .context-card {
+    left: calc(0.8rem + env(safe-area-inset-left, 0px));
+    right: auto;
+    top: 3rem;
+    bottom: auto;
+    width: min(46vw, 330px);
+    max-height: calc(100dvh - 4rem);
+    overflow-y: auto;
+    padding: 0.8rem 0.95rem;
+    font-size: 0.85rem;
+  }
+
+  .controls-panel {
+    top: 3rem;
+    bottom: auto;
+    left: auto;
+    right: calc(0.8rem + env(safe-area-inset-right, 0px));
+  }
+
+  .control-hint {
+    display: none;
+  }
+
+  .nitro {
+    bottom: calc(0.9rem + env(safe-area-inset-bottom, 0px));
+    padding: 0.45rem 0.75rem;
+  }
+
+  .nitro__bar {
+    width: 84px;
+  }
+
+  .laps {
+    top: 2.8rem;
+    bottom: auto;
+    font-size: 0.74rem;
+    padding: 0.35rem 0.75rem;
+  }
+
+  .race-pill {
+    top: 5rem;
+    bottom: auto;
+    font-size: 0.8rem;
+  }
+
+  .minimap {
+    left: auto;
+    right: calc(0.5rem + env(safe-area-inset-right, 0px));
+    top: 2.9rem;
+    bottom: auto;
+    transform: scale(0.55);
+    transform-origin: top right;
+  }
+
+  .race-result {
+    padding: 1rem 1.2rem;
+  }
+
+  .race-result h2 {
+    font-size: 1.15rem;
+    margin-bottom: 0.4rem;
+  }
+
+  /* slightly smaller controls so they don't eat the view */
+  .touch-btn {
+    width: 56px;
+    height: 56px;
+    font-size: 1.3rem;
+  }
+
+  .touch-btn--gas {
+    width: 70px;
+    height: 70px;
   }
 }
